@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public int GameRound;
 
     public int currentPlayerIndex = 0;// Track the current player's turn
+    public int playersCount = 0;// Track the number of players
     public List<Player> players;// List of players
 
     public Player currentPlayerPlaying;
@@ -27,7 +28,7 @@ public class GameManager : MonoBehaviour
     public float maxTimeToAnswerQuestions = 60;
 
     public bool gameHasStarted = false;
-    private bool gameInitialized = false;
+    public bool gameInitialized = false;
 
     private void Awake()
     {
@@ -55,34 +56,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HandleTimer()
-    {
-        currentTimeToAnswerQuestion -= Time.deltaTime;
 
-
-        if (currentTimeToAnswerQuestion <= 0)
-        {
-            // Time is up, switch to next player
-            EndRound();
-        }
-    }
-
-    public void LoadNextQuestion()
-    {
-        // If we've completed all questions for the current player, switch to the next player
-        if (GameManager.Instance.currentQuestionIndex >= GameManager.Instance.questions.Count)
-        {
-            EndPlayerTurn();
-        }
-        else
-        {
-            // Otherwise, load the next question
-            QuestionManager.Instance.UpdateQuestion();
-            NextQuestion();
-        }
-    }
-
-    private void InitializeGame()
+    public void InitializeGame()
     {
 
         currentPlayerPlaying = players[currentPlayerIndex];
@@ -96,61 +71,93 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private void NextQuestion()
+
+    private void HandleTimer()
     {
+        currentTimeToAnswerQuestion -= Time.deltaTime;
+
+
+        if (currentTimeToAnswerQuestion <= 0)
+        {
+            // Time is up, switch to next player
+            EndPlayerTurn();
+        }
+    }
+
+    public void LoadNextQuestion()
+    {
+        // Move to the next question
         currentQuestionIndex++;
 
-        //get next question for that player
-        if (currentQuestionIndex < questions.Count)
+        // Check if we've completed all questions
+        if (currentQuestionIndex >= questions.Count)
         {
-            currentQuestion = questions[currentQuestionIndex];
-            currentCorrectAnswer = correctAnswers[currentQuestionIndex];
-            QuestionManager.Instance.UpdateQuestion();
-        }
-        else
-        {
-            Debug.Log("Player has answered all the questions.");
-            EndPlayerTurn(); // End the player's turn after all questions are answered
+            EndPlayerTurn();
+            return;
         }
 
+        // Set current question and correct answer
+        currentQuestion = questions[currentQuestionIndex];
+        currentCorrectAnswer = correctAnswers[currentQuestionIndex];
+
+        // Update UI
+        QuestionManager.Instance.UpdateQuestion();
+
     }
+
+
 
     private void EndPlayerTurn()
     {
 
         Debug.Log($"Player {currentPlayerPlaying.playerName} has finished their turn!");
+
         // Check if we need to switch players
-        if (currentPlayerIndex < players.Count - 1)// More players to go
-        {
-            currentPlayerIndex++;//move to the next player
-            currentPlayerPlaying = players[currentPlayerIndex];
-            InitializeGame(); // Re-initialize game for the new player
-        }
-        else
-        {
-            Debug.Log("All players have completed their turns!");
-            gameHasStarted = false; // End the game or handle next steps
-        }
-    }
+        /*      if (currentPlayerIndex < players.Count - 1)// More players to go
+              {
+                  currentPlayerIndex++;//move to the next player
+                  currentPlayerPlaying = players[currentPlayerIndex];
+                  InitializeGame(); // Re-initialize game for the new player
+              }
+              else
+              {
+                  Debug.Log("All players have completed their turns!");
+                  gameHasStarted = false; // End the game or handle next steps
+              }
+      */
 
-    private void EndRound()
-    {
-        Debug.Log($"Round ended. Moving to the next player.");
+        UIManager.Instance.BackToMainMenu();
+        currentTimeToAnswerQuestion = 0; // Reset the timer for the next player
+        currentQuestionIndex = 0; // Reset question index for the next player
+        gameHasStarted = false;
+        gameInitialized = false;
 
-        currentPlayerIndex++;
 
-        if (currentPlayerIndex < players.Count - 1)
-        {
-            currentPlayerPlaying = players[currentPlayerIndex];
-            InitializeGame();
-        }
-        else
-        {
-            Debug.Log("All players have played.");
-            gameHasStarted = false;
-            gameInitialized = false;
-            // Handle end of game logic here
-        }
 
     }
+
+    // private void EndRound()
+    // {
+    //     Debug.Log($"Round ended. Moving to the next player.");
+
+    //     currentPlayerIndex++;
+    //     UIManager.Instance.BackToMainMenu();
+
+
+
+    //     if (currentPlayerIndex < players.Count - 1)
+    //     {
+
+    //         currentPlayerPlaying = players[currentPlayerIndex];
+    //         InitializeGame();
+    //     }
+    //     else
+    //     {
+    //         Debug.Log("All players have played.");
+    //         gameHasStarted = false;
+    //         gameInitialized = false;
+    //         // Handle end of game logic here
+    //     }
+
+    // }
 }

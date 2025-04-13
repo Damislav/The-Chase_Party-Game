@@ -19,18 +19,13 @@ public class QuestionManager : MonoBehaviour
 
     public void UpdateQuestion()
     {
-        if (GameManager.Instance.currentQuestionIndex >= GameManager.Instance.questions.Count)
-        {
-            Debug.Log("No more questions!");
-            // Handle end-of-questions logic here, maybe trigger end game or wrap around
-            return;
-        }
         // Set question and answer
         questionText.text = GameManager.Instance.currentQuestion;
         showAnswerText = GameManager.Instance.currentCorrectAnswer;
 
         // Update the question number UI
         int questionNumberIndex = GameManager.Instance.currentQuestionIndex + 1;
+
         questionNumberText.text = questionNumberIndex.ToString();
 
     }
@@ -38,6 +33,10 @@ public class QuestionManager : MonoBehaviour
 
     public void HandleQuestionButton()
     {
+        //get player
+        Player currentPlayer = GameManager.Instance.currentPlayerPlaying.GetComponent<Player>();
+
+
         // Get and clean the player's answer and correct answer
         string playerAnswer = playerAnswerInput.text.Trim().ToLower();
         string correctAnswer = showAnswerText.Trim().ToLower();
@@ -46,29 +45,30 @@ public class QuestionManager : MonoBehaviour
         playerAnswer = Regex.Replace(playerAnswer, @"[\u200B\u00A0\u202F\u200C\u200D]", "");
         correctAnswer = Regex.Replace(correctAnswer, @"[\u200B\u00A0\u202F\u200C\u200D]", "");
 
+
+        currentPlayer.questions.Add(GameManager.Instance.currentQuestion);
+
         if (playerAnswer == correctAnswer)
         {
 
             Debug.Log($"Correct answer {GameManager.Instance.currentPlayerPlaying.playerName}");
 
-            // Correct answer logic
             var player = GameManager.Instance.currentPlayerPlaying;
             player.CorrectAnswers++;
             player.hasEarned += 1000;
 
-            // After answering, move to the next question (handled by GameManager)
-            GameManager.Instance.LoadNextQuestion();
-            UpdateQuestion();
+            currentPlayer.correctAnsweredQuestions.Add(GameManager.Instance.currentCorrectAnswer);
         }
         else
         {
             Debug.Log($"Wrong answer {GameManager.Instance.currentPlayerPlaying.playerName}");
-            //     //Wrong answer
-            GameManager.Instance.LoadNextQuestion();
-            UpdateQuestion(); ;
-
-
+            currentPlayer.uncorrectAnsweredQuestions.Add(playerAnswer);
+            Debug.Log("Button listener assigned");
         }
+
+        // Common actions after answering
+        GameManager.Instance.LoadNextQuestion();
+
     }
 
 
