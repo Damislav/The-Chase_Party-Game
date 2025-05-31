@@ -10,10 +10,10 @@ public class GameManager : MonoBehaviour
     public int GameRound;
 
     public int currentPlayerIndex = 0;// Track the current player's turn
-    public int playersCount = 0;// Track the number of players
-    public List<Player> players;// List of players
+    // public int playersCount = 0;// Track the number of players
+    public List<PlayerData> players;// List of players
 
-    public Player currentPlayerPlaying;
+    public PlayerData currentPlayerPlaying;
 
     public int currentQuestionIndex = 0;
 
@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
 
     public string currentQuestion;
     public string currentCorrectAnswer;
-
 
     public float currentTimeToAnswerQuestion;
     public float maxTimeToAnswerQuestions = 60;
@@ -44,26 +43,27 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        //game begins
         if (gameHasStarted && !gameInitialized)
         {
             InitializeGame();
             gameInitialized = true;
         }
 
-        if (gameHasStarted)
+        //start timer only when game has started and game is initialized
+        if (gameHasStarted && gameInitialized)
         {
             HandleTimer();
         }
     }
 
-
     public void InitializeGame()
     {
-
         currentPlayerPlaying = players[currentPlayerIndex];
         currentQuestionIndex = 0; // Reset to the first question
         currentTimeToAnswerQuestion = maxTimeToAnswerQuestions;
 
+        //set current question and correct answer
         currentQuestion = questions[currentQuestionIndex];
         currentCorrectAnswer = correctAnswers[currentQuestionIndex];
 
@@ -71,11 +71,9 @@ public class GameManager : MonoBehaviour
 
     }
 
-
     private void HandleTimer()
     {
         currentTimeToAnswerQuestion -= Time.deltaTime;
-
 
         if (currentTimeToAnswerQuestion <= 0)
         {
@@ -105,8 +103,6 @@ public class GameManager : MonoBehaviour
 
     }
 
-
-
     private void EndPlayerTurn()
     {
 
@@ -131,9 +127,6 @@ public class GameManager : MonoBehaviour
         currentQuestionIndex = 0; // Reset question index for the next player
         gameHasStarted = false;
         gameInitialized = false;
-
-
-
     }
 
     // private void EndRound()

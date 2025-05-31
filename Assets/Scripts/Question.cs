@@ -4,7 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Quiz Multiplayer Game/Question")]
 public class Question : ScriptableObject
 {
-
     public string questionText;
 
     public string correctAnswer;
